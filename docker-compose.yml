@@ -1,43 +1,43 @@
 version: "3.8"
 
 services:
-  config-service:
-    image: 721431533455.dkr.ecr.ap-southeast-2.amazonaws.com/config-service:${CONFIG_SERVICE_IMAGE}
-    platform: linux/amd64
-    container_name: config-service
-    environment:
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=ap-southeast-2
-      - SPRING_RABBITMQ_HOST=${SPRING_RABBITMQ_HOST}
-      - SPRING_RABBITMQ_PORT=${SPRING_RABBITMQ_PORT}
-      - SPRING_RABBITMQ_USERNAME=${SPRING_RABBITMQ_USERNAME}
-      - SPRING_RABBITMQ_PASSWORD=${SPRING_RABBITMQ_PASSWORD}
-    ports:
-      - "8888:8888"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app-network
+#  config-service:
+#    image: 721431533455.dkr.ecr.ap-southeast-2.amazonaws.com/config-service:${CONFIG_SERVICE_IMAGE}
+#    platform: linux/amd64
+#    container_name: config-service
+#    environment:
+#      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+#      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+#      - AWS_REGION=ap-southeast-2
+#      - SPRING_RABBITMQ_HOST=${SPRING_RABBITMQ_HOST}
+#      - SPRING_RABBITMQ_PORT=${SPRING_RABBITMQ_PORT}
+#      - SPRING_RABBITMQ_USERNAME=${SPRING_RABBITMQ_USERNAME}
+#      - SPRING_RABBITMQ_PASSWORD=${SPRING_RABBITMQ_PASSWORD}
+#    ports:
+#      - "8888:8888"
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#    networks:
+#      - app-network
 
   catalog-service:
-    image: 721431533455.dkr.ecr.ap-southeast-2.amazonaws.com/catalog-service:${CATALOG_SERVICE_IMAGE}
+    image: catalog-service:${CATALOG_SERVICE_IMAGE}
     platform: linux/amd64
     container_name: catalog-service
     environment:
       - SPRING_PROFILES_ACTIVE=local
-      - SPRING_RABBITMQ_HOST=${SPRING_RABBITMQ_HOST}
-      - SPRING_RABBITMQ_PORT=${SPRING_RABBITMQ_PORT}
-      - SPRING_RABBITMQ_USERNAME=${SPRING_RABBITMQ_USERNAME}
-      - SPRING_RABBITMQ_PASSWORD=${SPRING_RABBITMQ_PASSWORD}
+#      - SPRING_RABBITMQ_HOST=${SPRING_RABBITMQ_HOST}
+#      - SPRING_RABBITMQ_PORT=${SPRING_RABBITMQ_PORT}
+#      - SPRING_RABBITMQ_USERNAME=${SPRING_RABBITMQ_USERNAME}
+#      - SPRING_RABBITMQ_PASSWORD=${SPRING_RABBITMQ_PASSWORD}
     ports:
       - "8080:8080"
-    depends_on:
-      config-service:
-        condition: service_healthy
+#    depends_on:
+#      config-service:
+#        condition: service_healthy
     networks:
       - app-network
 
