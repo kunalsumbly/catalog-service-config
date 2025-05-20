@@ -41,17 +41,35 @@ services:
     networks:
       - app-network
 
-#  rabbitmq:
-#    image: rabbitmq:3-management
-#    container_name: rabbitmq
-#    ports:
-#      - "5672:5672"    # AMQP port for Spring Cloud Bus
-#      - "15672:15672"  # Management UI port for inspection
-#    environment:
-#      - RABBITMQ_DEFAULT_USER=guest
-#      - RABBITMQ_DEFAULT_PASS=guest
-#    networks:
-#      - app-network
+  demo-service:
+    image: 721431533455.dkr.ecr.ap-southeast-2.amazonaws.com/demo-service:${DEMO_SERVICE_IMAGE}
+    platform: linux/amd64
+    container_name: demo-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - SPRING_RABBITMQ_HOST=${SPRING_RABBITMQ_HOST}
+      - SPRING_RABBITMQ_PORT=${SPRING_RABBITMQ_PORT}
+      - SPRING_RABBITMQ_USERNAME=${SPRING_RABBITMQ_USERNAME}
+      - SPRING_RABBITMQ_PASSWORD=${SPRING_RABBITMQ_PASSWORD}
+    ports:
+      - "9090:8080"
+    depends_on:
+      config-service:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # AMQP port for Spring Cloud Bus
+      - "15672:15672"  # Management UI port for inspection
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - app-network
 
 networks:
   app-network:

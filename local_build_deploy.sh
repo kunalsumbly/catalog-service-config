@@ -19,6 +19,7 @@ AWS_REGION=ap-southeast-2
 ECR_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
 CATALOG_SERVICE="catalog-service"
 CONFIG_SERVICE="config-service"
+DEMO_SERVICE="demo-service"
 
 
 echo "building catalog service jar"
@@ -49,7 +50,23 @@ sdk env
 echo "Now building the docker image for config service"
 
 docker build --platform=linux/amd64 -t "${CONFIG_SERVICE}:${TIMESTAMP}" -t "${ECR_URL}/${CONFIG_SERVICE}:${TIMESTAMP}" .
-echo "deply value is ::::::$deploy"
+
+
+echo "building demo service jar"
+
+cd ../demo-service
+
+sdk env
+
+./gradlew clean assemble
+
+# build the docker image now
+echo "Now building the docker image for demo service"
+
+docker build --platform=linux/amd64 -t "${DEMO_SERVICE}:${TIMESTAMP}" -t "${ECR_URL}/${DEMO_SERVICE}:${TIMESTAMP}" .
+
+
+echo "deploy value is ::::::$deploy"
 
 if [ "$deploy" = "true" ]; then
     echo "creating the ecr repos"
@@ -59,6 +76,7 @@ if [ "$deploy" = "true" ]; then
     # create ecr repositories
     aws ecr describe-repositories --repository-names $CATALOG_SERVICE --region $AWS_REGION --no-verify || aws ecr create-repository --repository-name $CATALOG_SERVICE --region $AWS_REGION --no-verify
     aws ecr describe-repositories --repository-names $CONFIG_SERVICE --region $AWS_REGION --no-verify || aws ecr create-repository --repository-name $CONFIG_SERVICE --region $AWS_REGION --no-verify
+    aws ecr describe-repositories --repository-names $DEMO_SERVICE --region $AWS_REGION --no-verify || aws ecr create-repository --repository-name $DEMO_SERVICE --region $AWS_REGION --no-verify
 
     echo "ECR Login"
     aws ecr get-login-password --region $AWS_REGION --no-verify | docker login --username AWS --password-stdin $ECR_URL
@@ -71,9 +89,14 @@ if [ "$deploy" = "true" ]; then
     echo "config-service tag generated:::::::::$ECR_URL/config-service:$TIMESTAMP"
     docker push "$ECR_URL/config-service:$TIMESTAMP"
 
+    echo "Tag and Push the image with ECR tag for demo service"
+    echo "demo-service tag generated:::::::::$ECR_URL/demo-service:$TIMESTAMP"
+    docker push "$ECR_URL/demo-service:$TIMESTAMP"
+
     # Check the images in the ECR and list them
     echo "Checking and listing images in ECR"
     aws ecr list-images --repository-name $CATALOG_SERVICE --region $AWS_REGION --no-verify
     aws ecr list-images --repository-name $CONFIG_SERVICE --region $AWS_REGION --no-verify
+    aws ecr list-images --repository-name $DEMO_SERVICE --region $AWS_REGION --no-verify
 fi
 
